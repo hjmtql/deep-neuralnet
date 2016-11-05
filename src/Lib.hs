@@ -11,11 +11,11 @@ genTensor :: Layer -> IO Tensor
 genTensor ns = mapM (\(x, y) -> uncurry randn (x, y)) ts
   where ts = drop 1 $ zip ns (0:ns)
 
-forwards :: Tensor -> Vector R -> Vector R
-forwards t v = foldr forward v $ reverse t
+forwards :: Tensor -> Matrix R -> Matrix R
+forwards t vs = foldr forward vs $ reverse t
 
-forward :: Matrix R -> Vector R -> Vector R
-forward m v = sigmoid $ m #> v
+forward :: Matrix R -> Matrix R -> Matrix R
+forward m vs = sigmoid $ m <> vs
 
 sigmoid n = 1 / (1 + exp (-n))
 
