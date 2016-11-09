@@ -25,20 +25,20 @@ main = hspec .
         u = forward w1 $ matrix 3 (replicate 6 1)
       size (forward w2 u) `shouldBe` size (matrix 3 (replicate 3 1))
 
-    it "size is ok?: forward2" $ do
+    it "size is ok?: forwardU" $ do
       let
         w1 = matrix 3 (replicate 9 1)
         w2 = matrix 4 (replicate 4 1)
-        u = w1 <> extendForBias is
+        u = w1 <> inputWithBias is
         is = matrix 3 (replicate 6 1)
-      size (forward2 w2 u) `shouldBe` size (matrix 3 (replicate 3 1))
+      size (forwardU w2 u) `shouldBe` size (matrix 3 (replicate 3 1))
 
-    it "size is ok?: forwards2" $ do
+    it "size is ok?: forwardUs" $ do
       ws <- genTensor [2, 3, 1]
       let
-        u = head ws <> extendForBias is
+        u = head ws <> inputWithBias is
         is = matrix 3 (replicate 6 1)
-      (size . last) (forwards2 (tail ws) u) `shouldBe` size (matrix 3 (replicate 3 1))
+      (size . last) (forwardUs (tail ws) u) `shouldBe` size (matrix 3 (replicate 3 1))
 
     it "size is ok?: backPropagation" $ do
       ws <- genTensor [2, 3, 1]
