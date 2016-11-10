@@ -2,9 +2,7 @@ import Test.Hspec
 import Test.QuickCheck
 import Control.Exception (evaluate)
 
-import Lib
-import Numeric.LinearAlgebra
-import Control.Monad
+-- import Numeric.LinearAlgebra
 
 main :: IO ()
 main = hspec .
@@ -18,31 +16,31 @@ main = hspec .
     it "throws an exception if used with an empty list" $
       evaluate (head []) `shouldThrow` anyException
 
-    it "size is ok?: forward" $ do
-      let
-        w1 = matrix 3 (replicate 9 1)
-        w2 = matrix 4 (replicate 4 1)
-        u = forward w1 $ matrix 3 (replicate 6 1)
-      size (forward w2 u) `shouldBe` size (matrix 3 (replicate 3 1))
-
-    it "size is ok?: forwardU" $ do
-      let
-        w1 = matrix 3 (replicate 9 1)
-        w2 = matrix 4 (replicate 4 1)
-        u = w1 <> inputWithBias is
-        is = matrix 3 (replicate 6 1)
-      size (forwardU w2 u) `shouldBe` size (matrix 3 (replicate 3 1))
-
-    it "size is ok?: forwardUs" $ do
-      ws <- genTensor [2, 3, 1]
-      let
-        u = head ws <> inputWithBias is
-        is = matrix 3 (replicate 6 1)
-      (size . last) (forwardUs (tail ws) u) `shouldBe` size (matrix 3 (replicate 3 1))
-
-    it "size is ok?: backPropagation" $ do
-      ws <- genTensor [2, 3, 1]
-      let
-        i = matrix 3 (replicate 6 1)
-        o = matrix 3 (replicate 3 1)
-      zipWithM_ shouldBe (fmap size (backPropagation i o ws)) (fmap size ws)
+    -- it "size is ok?: forward" $ do
+    --   let
+    --     w1 = matrix 3 (replicate 9 1)
+    --     w2 = matrix 4 (replicate 4 1)
+    --     u = forward w1 $ matrix 3 (replicate 6 1)
+    --   size (forward w2 u) `shouldBe` size (matrix 3 (replicate 3 1))
+    --
+    -- it "size is ok?: forwardU" $ do
+    --   let
+    --     w1 = matrix 3 (replicate 9 1)
+    --     w2 = matrix 4 (replicate 4 1)
+    --     u = w1 <> inputWithBias is
+    --     is = matrix 3 (replicate 6 1)
+    --   size (forwardU w2 u) `shouldBe` size (matrix 3 (replicate 3 1))
+    --
+    -- it "size is ok?: forwardUs" $ do
+    --   ws <- genTensor [2, 3, 1]
+    --   let
+    --     u = head ws <> inputWithBias is
+    --     is = matrix 3 (replicate 6 1)
+    --   (size . last) (forwardUs (tail ws) u) `shouldBe` size (matrix 3 (replicate 3 1))
+    --
+    -- it "size is ok?: backPropagation" $ do
+    --   ws <- genTensor [2, 3, 1]
+    --   let
+    --     i = matrix 3 (replicate 6 1)
+    --     o = matrix 3 (replicate 3 1)
+    --   zipWithM_ shouldBe (fmap size (backPropagation i o ws)) (fmap size ws)
