@@ -3,6 +3,7 @@ module Common (
     Layer,
     genTensor,
     forwards,
+    forward,
     sigmoid,
     dsigmoid,
     inputWithBias,
