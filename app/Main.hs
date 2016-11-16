@@ -1,6 +1,7 @@
 module Main where
 
 import Common
+import Forward
 import BackProp
 import AutoEncoder
 import Numeric.LinearAlgebra

@@ -2,8 +2,9 @@ module BackProp (
     backPropagation
   ) where
 
-import Common
 import Numeric.LinearAlgebra
+import Common
+import ActivationFunction
 
 backPropagation :: Matrix R -> Matrix R -> Tensor -> Tensor
 backPropagation xs ys ws = zipWith (-) ws (fmap (*0.1) dws)
@@ -13,7 +14,7 @@ backPropagation xs ys ws = zipWith (-) ws (fmap (*0.1) dws)
     dInit = last vs - ys
     us = forwardUs (tail ws) uInit -- length: L - 1
     uInit = head ws <> inputWithBias xs
-    vs = xs : fmap sigmoid us -- length: L
+    vs = xs : fmap sigmoidC us -- length: L
     len = fromIntegral $ cols xs
 
 forwardUs :: Tensor -> Matrix R -> Tensor
@@ -24,10 +25,10 @@ forwardUs ws u = [u] `mappend` case ws of
 
 forwardU :: Matrix R -> Matrix R -> Matrix R
 forwardU w u = w <> inputWithBias v
-  where v = sigmoid u
+  where v = sigmoidC u
 
 calcDelta :: [(Matrix R, Matrix R)] -> Matrix R -> Tensor
 calcDelta uws d = [d] `mappend` case uws of
   [] -> []
   (u, w):ts -> calcDelta ts nd
-    where nd = dsigmoid u * tr (weightWithoutBias w) <> d
+    where nd = dsigmoidC u * tr (weightWithoutBias w) <> d

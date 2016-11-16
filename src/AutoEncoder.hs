@@ -5,6 +5,7 @@ module AutoEncoder (
 
 import Numeric.LinearAlgebra
 import Common
+import Forward
 import BackProp
 
 preTrains :: Matrix R -> Tensor -> Tensor
