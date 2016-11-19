@@ -7,7 +7,7 @@ import Numeric.LinearAlgebra
 import Common
 import ActivationFunction
 
-forwards :: Tensor -> Matrix R -> Matrix R
+forwards :: [Matrix R] -> Matrix R -> Matrix R
 forwards ws vs = foldr forward vs $ reverse ws
 
 forward :: Matrix R -> Matrix R -> Matrix R

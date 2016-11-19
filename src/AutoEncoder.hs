@@ -8,7 +8,7 @@ import Common
 import Forward
 import BackProp
 
-preTrains :: Matrix R -> Tensor -> Tensor
+preTrains :: Matrix R -> [Matrix R] -> [Matrix R]
 preTrains x ws = case ws of
   [] -> []
   m:ms -> [nm] `mappend` preTrains y ms
@@ -16,7 +16,7 @@ preTrains x ws = case ws of
       nm:_ = preTrain x m
       y = forward nm x
 
-preTrain :: Matrix R -> Matrix R -> Tensor
+preTrain :: Matrix R -> Matrix R -> [Matrix R]
 preTrain x w = foldr (\f x -> f x) [w, tw] (replicate 2000 $ backPropagation x x)
   where
     tw = fromLists . fmap (\xs -> xs `mappend` [average xs]) $ toLists tw' -- initial bias: weight average

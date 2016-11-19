@@ -1,19 +1,17 @@
 module Common (
-    Tensor,
-    Layer,
-    genTensor,
+    genWeights,
     inputWithBias,
     weightWithoutBias
   ) where
 
 import Numeric.LinearAlgebra
 
-type Tensor = [Matrix R]
-type Layer = [Int]
+genWeights :: [Int] -> IO [Matrix R]
+genWeights ns = mapM genWeight ts -- +1: bias
+  where ts = zip ns $ tail ns
 
-genTensor :: Layer -> IO Tensor
-genTensor ns = mapM (uncurry randn) ts
-  where ts = drop 1 . zip ns $ 0 : fmap (+1) ns -- +1: bias
+genWeight :: (Int, Int) -> IO (Matrix R)
+genWeight (i, o) = randn o (i + 1)
 
 inputWithBias :: Matrix R -> Matrix R
 inputWithBias vs = fromLists $ toLists vs `mappend` [replicate (cols vs) 1] -- [1,1,..1]: bias
