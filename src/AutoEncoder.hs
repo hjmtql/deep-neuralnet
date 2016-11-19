@@ -7,17 +7,19 @@ import Numeric.LinearAlgebra
 import Common
 import Forward
 import BackProp
+import ActivationFunction
 
-preTrains :: Matrix R -> [Matrix R] -> [Matrix R]
-preTrains x ws = case ws of
+-- TODO: refactor
+preTrains :: (Matrix R -> Matrix R) -> (Matrix R -> Matrix R) -> Matrix R -> [Matrix R] -> [Matrix R]
+preTrains f df x ws = case ws of
   [] -> []
-  m:ms -> [nm] `mappend` preTrains y ms
+  m:ms -> [nm] `mappend` preTrains f df y ms
     where
-      nm:_ = preTrain x m
-      y = forward nm x
+      nm = preTrain f df x m
+      y = forward f nm x
 
-preTrain :: Matrix R -> Matrix R -> [Matrix R]
-preTrain x w = foldr (\f x -> f x) [w, tw] (replicate 2000 $ backPropagation x x)
+preTrain :: (Matrix R -> Matrix R) -> (Matrix R -> Matrix R) ->  Matrix R -> Matrix R -> Matrix R
+preTrain f df x w = head . last . take 2000 $ iterate (backProp f f df x x) [w, tw]
   where
     tw = fromLists . fmap (\xs -> xs `mappend` [average xs]) $ toLists tw' -- initial bias: weight average
     tw' = tr $ weightWithoutBias w

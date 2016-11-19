@@ -1,34 +1,39 @@
 module BackProp (
-    backPropagation
+    backPropRegression,
+    backPropClassification,
+    backProp
   ) where
 
 import Numeric.LinearAlgebra
 import Common
 import ActivationFunction
 
-backPropagation :: Matrix R -> Matrix R -> [Matrix R] -> [Matrix R]
-backPropagation xs ys ws = zipWith (-) ws (fmap (*0.1) dws)
+backPropRegression :: (Matrix R -> Matrix R) -> (Matrix R -> Matrix R) -> Matrix R -> Matrix R -> [Matrix R] -> [Matrix R]
+backPropRegression = backProp id
+
+backPropClassification :: (Matrix R -> Matrix R) -> (Matrix R -> Matrix R) -> Matrix R -> Matrix R -> [Matrix R] -> [Matrix R]
+backPropClassification = backProp softmaxC
+
+backProp :: (Matrix R -> Matrix R) -> (Matrix R -> Matrix R) -> (Matrix R -> Matrix R) -> Matrix R -> Matrix R -> [Matrix R] -> [Matrix R]
+backProp af f df x y ws@(m:ms) = zipWith (-) ws (fmap (0.1 *) dws)
   where
-    dws = (/ len) <$> zipWith (<>) ds (fmap (tr . inputWithBias) (init vs))
-    ds = reverse $ calcDelta (reverse (zip (init us) (tail ws))) dInit -- length: L - 1
-    dInit = last vs - ys
-    us = forwardUs (tail ws) uInit -- length: L - 1
-    uInit = head ws <> inputWithBias xs
-    vs = xs : fmap sigmoidC us -- length: L
-    len = fromIntegral $ cols xs
+    dws = fmap (/ len) . zipWith (<>) ds $ fmap (tr . inputWithBias) vs
+    len = fromIntegral $ cols x
+    vs = x : fmap f rs -- length: L - 1
+    ds = calcDeltas df (zip rs ms) dInit -- length: L - 1
+    dInit = af r - y
+    (rs, r) = (init us, last us)
+    us = forwardUs f ms uInit -- length: L - 1
+    uInit = m <> inputWithBias x
 
-forwardUs :: [Matrix R] -> Matrix R -> [Matrix R]
-forwardUs ws u = [u] `mappend` case ws of
-  [] -> []
-  m:ms -> forwardUs ms nu
-    where nu = forwardU m u
+forwardUs :: (Matrix R -> Matrix R) -> [Matrix R] -> Matrix R -> [Matrix R]
+forwardUs f ws u = scanl (flip (forwardU f)) u ws
 
-forwardU :: Matrix R -> Matrix R -> Matrix R
-forwardU w u = w <> inputWithBias v
-  where v = sigmoidC u
+forwardU :: (Matrix R -> Matrix R) -> Matrix R -> Matrix R -> Matrix R
+forwardU f w u = w <> inputWithBias (f u)
 
-calcDelta :: [(Matrix R, Matrix R)] -> Matrix R -> [Matrix R]
-calcDelta uws d = [d] `mappend` case uws of
-  [] -> []
-  (u, w):ts -> calcDelta ts nd
-    where nd = dsigmoidC u * tr (weightWithoutBias w) <> d
+calcDeltas :: (Matrix R -> Matrix R) -> [(Matrix R, Matrix R)] -> Matrix R -> [Matrix R]
+calcDeltas df uws d = scanr (calcDelta df) d uws
+
+calcDelta :: (Matrix R -> Matrix R) -> (Matrix R, Matrix R) -> Matrix R -> Matrix R
+calcDelta df (u, w) d = df u * tr (weightWithoutBias w) <> d

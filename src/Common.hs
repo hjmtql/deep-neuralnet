@@ -7,11 +7,11 @@ module Common (
 import Numeric.LinearAlgebra
 
 genWeights :: [Int] -> IO [Matrix R]
-genWeights ns = mapM genWeight ts -- +1: bias
-  where ts = zip ns $ tail ns
+genWeights ns = mapM genWeight ts
+  where ts = zip ns (tail ns)
 
 genWeight :: (Int, Int) -> IO (Matrix R)
-genWeight (i, o) = randn o (i + 1)
+genWeight (i, o) = randn o (i + 1) -- +1: bias
 
 inputWithBias :: Matrix R -> Matrix R
 inputWithBias vs = fromLists $ toLists vs `mappend` [replicate (cols vs) 1] -- [1,1,..1]: bias
