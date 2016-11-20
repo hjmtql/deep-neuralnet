@@ -1,28 +1,17 @@
 module Main where
 
-import Data.List
-import Data.List.Split
+import Numeric.LinearAlgebra
 import Common
 import Forward
 import BackProp
 import AutoEncoder
-import Numeric.LinearAlgebra
 import ActivationFunction
+import Other
 
 main :: IO ()
 main = do
   regression
   classification
-
-parseCsvToMatrixR :: FilePath -> IO (Matrix R)
-parseCsvToMatrixR fp = do
-  csv <- readFile fp
-  return . fromLists . fmap (fmap (read :: String -> R) . splitOn ",") $ lines csv
-
-printCsvFromMatrixR :: FilePath -> Matrix R -> IO ()
-printCsvFromMatrixR fp m = do
-  let csv = unlines . fmap (intercalate ", ") $ fmap show <$> toLists m
-  writeFile fp csv
 
 regression :: IO ()
 regression = do
@@ -32,9 +21,10 @@ regression = do
   let y = matrix 4 [0, 1, 1, 0]
   let i = matrix 4 [0, 0, 1, 1,
                     0, 1, 0, 1] -- example
-  let nws = last . take 1000 $ iterate (backPropRegression (sigmoid, dsigmoid) (x, y)) ws
-  let pws = preTrains (sigmoid, dsigmoid) x ws
-  let npws = last . take 1000 $ iterate (backPropRegression (sigmoid, dsigmoid) (x, y)) pws
+  -- let nws = last . take 500 $ iterate (backPropRegression (sigmoid, dsigmoid) (x, y)) ws
+  nws <- last . take 500 $ iterateM (sgdMethod 2 (x, y) $ backPropRegression (sigmoid, dsigmoid)) ws
+  let pws = preTrains (sigmoid, dsigmoid) x ws -- TODO: iter parameter
+  npws <- last . take 500 $ iterateM (sgdMethod 2 (x, y) $ backPropRegression (sigmoid, dsigmoid)) pws
   putStrLn "training inputs"
   print x
   putStrLn "training outputs"
@@ -58,10 +48,10 @@ classification = do
                     0, 0, 0, 1]
   let i = matrix 4 [0, 0, 1, 1,
                     0, 1, 0, 1] -- example
-
-  let nws = last . take 1000 $ iterate (backPropClassification (sigmoid, dsigmoid) (x, y)) ws
-  let pws = preTrains (sigmoid, dsigmoid) x ws
-  let npws = last . take 1000 $ iterate (backPropClassification (sigmoid, dsigmoid) (x, y)) pws
+  -- let nws = last . take 500 $ iterate (backPropClassification (sigmoid, dsigmoid) (x, y)) ws
+  nws <- last . take 500 $ iterateM (sgdMethod 2 (x, y) $ backPropClassification (sigmoid, dsigmoid)) ws
+  let pws = preTrains (sigmoid, dsigmoid) x ws -- TODO: iter parameter
+  npws <- last . take 500 $ iterateM (sgdMethod 2 (x, y) $ backPropClassification (sigmoid, dsigmoid)) pws
   putStrLn "training inputs"
   print x
   putStrLn "training outputs"

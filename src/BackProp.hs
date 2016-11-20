@@ -1,12 +1,18 @@
 module BackProp (
     backPropRegression,
     backPropClassification,
-    backProp
+    backProp,
+    sgdMethod
   ) where
 
 import Numeric.LinearAlgebra
 import Common
 import ActivationFunction
+
+sgdMethod :: Int -> (Matrix R, Matrix R) -> ((Matrix R, Matrix R) -> [Matrix R] -> [Matrix R]) -> [Matrix R] -> IO [Matrix R]
+sgdMethod n xy f ws = do
+  nxy <- pickupSets n xy
+  return $ f nxy ws
 
 backPropRegression :: (Matrix R -> Matrix R, Matrix R -> Matrix R) -> (Matrix R, Matrix R) -> [Matrix R] -> [Matrix R]
 backPropRegression = backProp id
