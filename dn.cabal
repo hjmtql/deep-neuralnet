@@ -31,6 +31,7 @@ executable dn-exe
   build-depends:       base
                      , dn
                      , hmatrix
+                     , split
   default-language:    Haskell2010
 
 test-suite dn-test

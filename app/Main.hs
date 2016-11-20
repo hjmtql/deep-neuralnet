@@ -1,5 +1,7 @@
 module Main where
 
+import Data.List
+import Data.List.Split
 import Common
 import Forward
 import BackProp
@@ -11,6 +13,16 @@ main :: IO ()
 main = do
   regression
   classification
+
+parseCsvToMatrixR :: FilePath -> IO (Matrix R)
+parseCsvToMatrixR fp = do
+  csv <- readFile fp
+  return . fromLists . fmap (fmap (read :: String -> R) . splitOn ",") $ lines csv
+
+printCsvFromMatrixR :: FilePath -> Matrix R -> IO ()
+printCsvFromMatrixR fp m = do
+  let csv = unlines . fmap (intercalate ", ") $ fmap show <$> toLists m
+  writeFile fp csv
 
 regression :: IO ()
 regression = do
