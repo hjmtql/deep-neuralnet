@@ -8,14 +8,14 @@ import Numeric.LinearAlgebra
 import Common
 import ActivationFunction
 
-backPropRegression :: (Matrix R -> Matrix R) -> (Matrix R -> Matrix R) -> Matrix R -> Matrix R -> [Matrix R] -> [Matrix R]
+backPropRegression :: (Matrix R -> Matrix R, Matrix R -> Matrix R) -> (Matrix R, Matrix R) -> [Matrix R] -> [Matrix R]
 backPropRegression = backProp id
 
-backPropClassification :: (Matrix R -> Matrix R) -> (Matrix R -> Matrix R) -> Matrix R -> Matrix R -> [Matrix R] -> [Matrix R]
+backPropClassification :: (Matrix R -> Matrix R, Matrix R -> Matrix R) -> (Matrix R, Matrix R) -> [Matrix R] -> [Matrix R]
 backPropClassification = backProp softmaxC
 
-backProp :: (Matrix R -> Matrix R) -> (Matrix R -> Matrix R) -> (Matrix R -> Matrix R) -> Matrix R -> Matrix R -> [Matrix R] -> [Matrix R]
-backProp af f df x y ws@(m:ms) = zipWith (-) ws (fmap (0.1 *) dws)
+backProp :: (Matrix R -> Matrix R) -> (Matrix R -> Matrix R, Matrix R -> Matrix R) -> (Matrix R, Matrix R) -> [Matrix R] -> [Matrix R]
+backProp af (f, df) (x, y) ws@(m:ms) = zipWith (-) ws (fmap (0.1 *) dws)
   where
     dws = fmap (/ len) . zipWith (<>) ds $ fmap (tr . inputWithBias) vs
     len = fromIntegral $ cols x

@@ -26,15 +26,15 @@ printCsvFromMatrixR fp m = do
 
 regression :: IO ()
 regression = do
-  ws <- genWeights [2, 4, 1]
+  ws <- genWeights [2, 4, 8, 16, 1]
   let x = matrix 4 [0, 0, 1, 1,
                     0, 1, 0, 1]
   let y = matrix 4 [0, 1, 1, 0]
   let i = matrix 4 [0, 0, 1, 1,
                     0, 1, 0, 1] -- example
-  let nws = last . take 2000 $ iterate (backPropRegression sigmoid dsigmoid x y) ws
-  let pws = preTrains sigmoid dsigmoid x ws
-  let npws = last . take 2000 $ iterate (backPropRegression sigmoid dsigmoid x y) pws
+  let nws = last . take 1000 $ iterate (backPropRegression (sigmoid, dsigmoid) (x, y)) ws
+  let pws = preTrains (sigmoid, dsigmoid) x ws
+  let npws = last . take 1000 $ iterate (backPropRegression (sigmoid, dsigmoid) (x, y)) pws
   putStrLn "training inputs"
   print x
   putStrLn "training outputs"
@@ -50,7 +50,7 @@ regression = do
 
 classification :: IO ()
 classification = do
-  ws <- genWeights [2, 8, 3]
+  ws <- genWeights [2, 4, 8, 16, 3]
   let x = matrix 4 [0, 0, 1, 1,
                     0, 1, 0, 1]
   let y = matrix 4 [1, 0, 0, 0,
@@ -58,9 +58,10 @@ classification = do
                     0, 0, 0, 1]
   let i = matrix 4 [0, 0, 1, 1,
                     0, 1, 0, 1] -- example
-  let nws = last . take 2000 $ iterate (backPropClassification sigmoid dsigmoid x y) ws
-  let pws = preTrains sigmoid dsigmoid x ws
-  let npws = last . take 2000 $ iterate (backPropClassification sigmoid dsigmoid x y) pws
+
+  let nws = last . take 1000 $ iterate (backPropClassification (sigmoid, dsigmoid) (x, y)) ws
+  let pws = preTrains (sigmoid, dsigmoid) x ws
+  let npws = last . take 1000 $ iterate (backPropClassification (sigmoid, dsigmoid) (x, y)) pws
   putStrLn "training inputs"
   print x
   putStrLn "training outputs"
