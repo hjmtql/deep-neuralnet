@@ -5,7 +5,7 @@ import Common
 import Forward
 import BackProp
 import AutoEncoder
-import ActivationFunction
+import ActivFunc
 import Other
 
 main :: IO ()
@@ -15,16 +15,16 @@ main = do
 
 regression :: IO ()
 regression = do
-  ws <- genWeights [2, 4, 8, 16, 1]
+  ws <- genWeights [2, 4, 8, 1]
   let x = matrix 4 [0, 0, 1, 1,
                     0, 1, 0, 1]
   let y = matrix 4 [0, 1, 1, 0]
   let i = matrix 4 [0, 0, 1, 1,
                     0, 1, 0, 1] -- example
-  -- let nws = last . take 500 $ iterate (backPropRegression (sigmoid, dsigmoid) (x, y)) ws
-  nws <- last . take 500 $ iterateM (sgdMethod 2 (x, y) $ backPropRegression (sigmoid, dsigmoid)) ws
-  let pws = preTrains (sigmoid, dsigmoid) x ws -- TODO: iter parameter
-  npws <- last . take 500 $ iterateM (sgdMethod 2 (x, y) $ backPropRegression (sigmoid, dsigmoid)) pws
+  -- let nws = last . take 500 $ iterate (backPropRegression sigmoids (x, y)) ws
+  nws <- last . take 500 $ iterateM (sgdMethod 2 (x, y) $ backPropRegression 0.1 sigmoids) ws
+  let pws = preTrains 0.1 500 sigmoids x ws
+  npws <- last . take 500 $ iterateM (sgdMethod 2 (x, y) $ backPropRegression 0.1 sigmoids) pws
   putStrLn "training inputs"
   print x
   putStrLn "training outputs"
@@ -32,15 +32,15 @@ regression = do
   putStrLn "inputs"
   print i
   putStrLn "not trained outputs"
-  print $ forwardRegressions sigmoid ws i
+  print $ forwardRegression sigmoidC ws i
   putStrLn "trainined outputs"
-  print $ forwardRegressions sigmoid nws i
+  print $ forwardRegression sigmoidC nws i
   putStrLn "pretrainined outputs"
-  print $ forwardRegressions sigmoid npws i
+  print $ forwardRegression sigmoidC npws i
 
 classification :: IO ()
 classification = do
-  ws <- genWeights [2, 4, 8, 16, 3]
+  ws <- genWeights [2, 4, 8, 3]
   let x = matrix 4 [0, 0, 1, 1,
                     0, 1, 0, 1]
   let y = matrix 4 [1, 0, 0, 0,
@@ -48,10 +48,10 @@ classification = do
                     0, 0, 0, 1]
   let i = matrix 4 [0, 0, 1, 1,
                     0, 1, 0, 1] -- example
-  -- let nws = last . take 500 $ iterate (backPropClassification (sigmoid, dsigmoid) (x, y)) ws
-  nws <- last . take 500 $ iterateM (sgdMethod 2 (x, y) $ backPropClassification (sigmoid, dsigmoid)) ws
-  let pws = preTrains (sigmoid, dsigmoid) x ws -- TODO: iter parameter
-  npws <- last . take 500 $ iterateM (sgdMethod 2 (x, y) $ backPropClassification (sigmoid, dsigmoid)) pws
+  -- let nws = last . take 500 $ iterate (backPropClassification sigmoids (x, y)) ws
+  nws <- last . take 500 $ iterateM (sgdMethod 2 (x, y) $ backPropClassification 0.1 sigmoids) ws
+  let pws = preTrains 0.1 500 sigmoids x ws
+  npws <- last . take 500 $ iterateM (sgdMethod 2 (x, y) $ backPropClassification 0.1 sigmoids) pws
   putStrLn "training inputs"
   print x
   putStrLn "training outputs"
@@ -59,8 +59,8 @@ classification = do
   putStrLn "inputs"
   print i
   putStrLn "not trained outputs"
-  print $ forwardClassification sigmoid ws i
+  print $ forwardClassification sigmoidC ws i
   putStrLn "trainined outputs"
-  print $ forwardClassification sigmoid nws i
+  print $ forwardClassification sigmoidC nws i
   putStrLn "pretrainined outputs"
-  print $ forwardClassification sigmoid npws i
+  print $ forwardClassification sigmoidC npws i

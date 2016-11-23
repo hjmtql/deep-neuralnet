@@ -1,22 +1,22 @@
 module Forward (
     forwardClassification,
-    forwardRegressions,
+    forwardRegression,
     forward
   ) where
 
 import Numeric.LinearAlgebra
 import Common
-import ActivationFunction
+import ActivFunc
 
 forwardClassification :: (Matrix R -> Matrix R) -> [Matrix R] -> Matrix R -> Matrix R
-forwardClassification f ws v = softmaxC $ forwardRegressions f ws v
+forwardClassification f ws v = softmaxC $ forwardRegression f ws v
 
-forwardRegressions :: (Matrix R -> Matrix R) -> [Matrix R] -> Matrix R -> Matrix R
-forwardRegressions f ws v = m <> inputWithBias nv
-  where
-    nv = foldl (flip (forward f)) v ms
-    (ms, m) = (init ws, last ws)
+forwardRegression :: (Matrix R -> Matrix R) -> [Matrix R] -> Matrix R -> Matrix R
+forwardRegression f ws v = forward id (last ws) nv
+  where nv = forwards f (init ws) v
+
+forwards :: (Matrix R -> Matrix R) -> [Matrix R] -> Matrix R -> Matrix R
+forwards f ws v = foldl (flip $ forward f) v ws
 
 forward :: (Matrix R -> Matrix R) -> Matrix R -> Matrix R -> Matrix R
-forward f w v = f $ w <> bv
-  where bv = inputWithBias v
+forward f w v = f $ w <> inputWithBias v

@@ -19,7 +19,7 @@ library
                      , Forward
                      , BackProp
                      , AutoEncoder
-                     , ActivationFunction
+                     , ActivFunc
                      , Other
   build-depends:       base >= 4.7 && < 5
                      , hmatrix
