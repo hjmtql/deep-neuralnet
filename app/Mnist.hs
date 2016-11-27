@@ -1,6 +1,7 @@
 module Main where
 
 import Numeric.LinearAlgebra
+import Control.Arrow
 import Common
 import Forward
 import BackProp
@@ -11,17 +12,24 @@ import Mnist
 
 main :: IO ()
 main = do
-  m <- parseCsvToMatrixR "data/mnist_test_100.csv"
-  let (y, x) = mnistRead m
+  tm <- parseCsvToMatrixR "data/mnist_test_100.csv"
+  let (ty, tx) = tr *** tr $ mnistRead 10 tm
+  m <- parseCsvToMatrixR "data/mnist_train_600.csv"
+  let (y, x) = tr *** tr $ mnistRead 10 m
   ws <- genWeights [784, 10]
 
-  nws <- last . take 500 $ iterateM (sgdMethod 100 (x, y) $ backPropClassification 0.01 sigmoids) ws
-  let pws = preTrains 0.1 500 sigmoids x ws
-  npws <- last . take 500 $ iterateM (sgdMethod 100 (x, y) $ backPropClassification 0.01 sigmoids) pws
+  -- let pws = preTrains 0.5 1000 ramps x ws
+  nws <- last . take 1000 $ iterateM (sgdMethod 100 (x, y) $ backPropClassification 0.5 ramps) ws
 
-  putStrLn "not trained outputs"
-  print $ tr $ forwardClassification sigmoidC ws x
-  putStrLn "trainined outputs"
-  print $ forwardClassification sigmoidC nws x
-  putStrLn "pretrainined outputs"
-  print $ forwardClassification sigmoidC npws x
+  -- putStrLn "not trained outputs"
+  -- print . tr . classesToLabels . tr . forwardClassification rampC ws $ tx
+  -- TODO: use function
+  let o = tr . classesToLabels . tr . forwardClassification rampC nws $ tx
+  let t = tr . classesToLabels . tr $ ty
+  let l = head . toLists $ t - o
+  let a = length l
+  let s = length . filter (==0) $ l
+  print $ fromIntegral s / fromIntegral a
+
+  -- putStrLn "pretrainined outputs"
+  -- print . classesToLabels . tr . forwardClassification rampC npws $ x
